@@ -58,7 +58,7 @@ func newAnalyzer() *analysis.Analyzer {
 var Registration = goyze.Registration{
 	Name:       "ptrrecv",
 	Categories: []goyze.Category{"immutability"},
-	URL:        "https://docs.gomatic.dev/yze/go/ptrrecv",
+	URL:        "https://docs.gomatic.dev/yze/ptrrecv",
 	Analyzer:   Analyzer,
 }
 
@@ -128,10 +128,21 @@ func requiresPointer(allow map[string]bool, t types.Type) bool {
 	return false
 }
 
-// fieldRequiresPointer reports whether a field's type is itself a no-copy type or
-// a struct that transitively contains one.
+// fieldRequiresPointer reports whether a field's type is itself a no-copy type, a
+// struct that transitively contains one, or an array whose element type does.
+// An array stores its elements inline, so copying it copies each element; a
+// no-copy element therefore makes the whole array — and its enclosing struct —
+// uncopyable (as go vet copylocks treats it). Slices, maps, channels, and
+// pointers are deliberately not walked: they are references whose copy duplicates
+// only the header/pointer, never the pointee, so they leave the struct copyable.
 func fieldRequiresPointer(allow map[string]bool, ft types.Type) bool {
-	return isNoCopy(allow, ft) || requiresPointer(allow, ft)
+	if isNoCopy(allow, ft) {
+		return true
+	}
+	if arr, ok := ft.Underlying().(*types.Array); ok {
+		return fieldRequiresPointer(allow, arr.Elem())
+	}
+	return requiresPointer(allow, ft)
 }
 
 // isNoCopy reports whether ft names an allow-listed no-copy type.
