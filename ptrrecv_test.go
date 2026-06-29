@@ -1,0 +1,19 @@
+package ptrrecv_test
+
+import (
+	"testing"
+
+	ptrrecv "github.com/gomatic/yze-go-ptrrecv"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/tools/go/analysis/analysistest"
+)
+
+func TestUnjustifiedPointerReceiversAreReported(t *testing.T) {
+	analysistest.Run(t, analysistest.TestData(), ptrrecv.Analyzer, "a")
+}
+
+func TestRegistrationIsWellFormed(t *testing.T) {
+	assert.NoError(t, ptrrecv.Registration.Validate())
+	assert.Equal(t, "yze/go/ptrrecv", ptrrecv.Registration.RuleID())
+	assert.Same(t, ptrrecv.Analyzer, ptrrecv.Registration.Analyzer)
+}
