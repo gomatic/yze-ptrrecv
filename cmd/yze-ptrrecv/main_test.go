@@ -3,10 +3,11 @@ package main
 import (
 	"testing"
 
-	ptrrecv "github.com/gomatic/yze-go-ptrrecv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/analysis"
+
+	ptrrecv "github.com/gomatic/yze-ptrrecv"
 )
 
 func TestMainRunsTheAnalyzer(t *testing.T) {
