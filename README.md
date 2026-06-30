@@ -1,4 +1,4 @@
-# yze-ptrrecv
+# yze-go-ptrrecv
 
 A [`yze`](https://github.com/gomatic/yze) analyzer (category `immutability`) enforcing the gomatic Go immutability standard: methods use **value receivers**, never pointer receivers, unless the receiver type transitively contains a field that cannot be copied (a `sync` primitive, `sync/atomic` type, `bytes.Buffer`, or `strings.Builder`).
 
@@ -8,6 +8,6 @@ The rule is intentionally narrow: only a transitively-uncopyable field justifies
 
 - **Rule:** `yze/ptrrecv`
 - **No-copy types:** 16 baked-in standard-library types, extensible at runtime via the `-allow` flag (comma-separated fully-qualified `pkgpath.Name` entries).
-- **Binary:** `cmd/yze-ptrrecv` runs it standalone (`text`/`-json`, and as a `go vet -vettool`).
+- **Binary:** `cmd/yze-go-ptrrecv` runs it standalone (`text`/`-json`, and as a `go vet -vettool`).
 
 Built on the [`go-yze`](https://github.com/gomatic/go-yze) framework.

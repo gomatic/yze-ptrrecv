@@ -1,4 +1,4 @@
-module github.com/gomatic/yze-ptrrecv
+module github.com/gomatic/yze-go-ptrrecv
 
 go 1.26.4
 

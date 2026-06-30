@@ -5,7 +5,7 @@ package main
 import (
 	"golang.org/x/tools/go/analysis/singlechecker"
 
-	ptrrecv "github.com/gomatic/yze-ptrrecv"
+	ptrrecv "github.com/gomatic/yze-go-ptrrecv"
 )
 
 // run is the analysis entry point, indirected so the binary's wiring is testable

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/analysis/analysistest"
 
-	ptrrecv "github.com/gomatic/yze-ptrrecv"
+	ptrrecv "github.com/gomatic/yze-go-ptrrecv"
 )
 
 func TestUnjustifiedPointerReceiversAreReported(t *testing.T) {
