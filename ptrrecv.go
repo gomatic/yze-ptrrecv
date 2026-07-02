@@ -100,7 +100,7 @@ func splitNonEmpty(value allowCSV) []string {
 // the value-receiver rewrite when it is provably behavior-preserving.
 func check(pass *analysis.Pass, allow map[string]bool, fn *ast.FuncDecl) {
 	star, recv := pointerReceiver(pass, fn)
-	if recv == nil || requiresPointer(allow, recv) {
+	if recv == nil || requiresPointer(allow, recv) || decoderMethod(fn) {
 		return
 	}
 	pass.Report(analysis.Diagnostic{
@@ -170,4 +170,37 @@ func isNoCopy(allow map[string]bool, ft types.Type) bool {
 		return false
 	}
 	return allow[named.Obj().Pkg().Path()+"."+named.Obj().Name()]
+}
+
+// decoderNames are the well-known decode/bind interface methods whose pointer
+// receiver is dictated by the contract itself: the interface writes INTO the
+// receiver and returns only an error, so a value receiver cannot implement it
+// (encoding.TextUnmarshaler, json/yaml/xml Unmarshalers, gob, sql.Scanner,
+// flag.Value's Set).
+var decoderNames = map[string]bool{
+	"UnmarshalJSON":   true,
+	"UnmarshalYAML":   true,
+	"UnmarshalText":   true,
+	"UnmarshalBinary": true,
+	"UnmarshalXML":    true,
+	"UnmarshalTOML":   true,
+	"GobDecode":       true,
+	"Scan":            true,
+	"Set":             true,
+}
+
+// decoderMethod reports whether fn is a decode/bind contract method: a
+// well-known name AND the contract shape — the sole result is error. An
+// ordinary setter that happens to be called Set (no error result) stays
+// reported.
+func decoderMethod(fn *ast.FuncDecl) bool {
+	if !decoderNames[fn.Name.Name] {
+		return false
+	}
+	results := fn.Type.Results
+	if results == nil || len(results.List) != 1 {
+		return false
+	}
+	ident, ok := results.List[0].Type.(*ast.Ident)
+	return ok && ident.Name == "error"
 }

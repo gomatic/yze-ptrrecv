@@ -222,3 +222,16 @@ func (Unnamed) Touch() {} // want `pointer receiver on Unnamed should be a value
 
 // plainFunc is not a method.
 func plainFunc() {}
+
+// Setting implements decode contracts: their pointer receivers are dictated
+// by the interfaces (they write INTO the receiver), so they are not reported.
+type Setting struct{ v string }
+
+func (s *Setting) UnmarshalYAML(unmarshal func(any) error) error { return unmarshal(&s.v) }
+
+func (s *Setting) UnmarshalText(b []byte) error { s.v = string(b); return nil }
+
+func (s *Setting) Set(v string) error { s.v = v; return nil }
+
+// Get is an ordinary pointer-receiver method on a lock-free type: reported.
+func (s Setting) Get() string { return s.v } // want `pointer receiver`
